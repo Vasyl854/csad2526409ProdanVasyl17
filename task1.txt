@@ -1,0 +1,11 @@
+Generate a minimal C++ program that prints "Hello World" to the console.
+
+Copilot said:
+I'll provide a minimal C++ program that prints "Hello World". If you want, I can also commit this file to the repository/branch you referenced—just tell me to proceed.
+
+#include <iostream>
+
+int main() {
+    std::cout << "Hello World" << std::endl;
+    return 0;
+}
