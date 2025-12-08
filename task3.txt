@@ -1,0 +1,131 @@
+Create the following project structure and code files.
+1. Create a module for testing
+In the root of the project, create two files: math_operations.h and math_operations.cpp.
+In math_operations.h, declare a function int add(int a, int b);.
+In math_operations.cpp, implement the add function.
+2. Create a unit test file
+Create a new directory called tests in the root of the project.
+Inside it, create a file named unit_tests.cpp.
+Write unit tests for the add function using Google Test.
+3. Update CMakeLists.txt
+Add Google Test support to CMakeLists.txt.
+Add instructions to build the test executable and enable automatic test discovery and execution.
+Follow best practices for CMake structure and Google Test integration.
+
+Copilot said:
+Copilot said: I created the requested module, unit test,
+I created the requested module, unit test, and an updated CMake configuration that integrates Google Test. Below are the new/updated files.
+
+math_operations.h
+#ifndef MATH_OPERATIONS_H
+#define MATH_OPERATIONS_H
+
+// Simple math operations module
+// Returns the sum of a and b
+int add(int a, int b);
+
+#endif // MATH_OPERATIONS_H
+
+math_operations.cpp
+#include "math_operations.h"
+
+int add(int a, int b) {
+    return a + b;
+}
+
+tests/unit_tests.cpp
+```cpp
+#include "math_operations.h"
+#include <gtest/gtest.h>
+
+TEST(AddTest, HandlesPositiveNumbers) {
+    EXPECT_EQ(add(1, 2), 3);
+    EXPECT_EQ(add(10, 20), 30);
+}
+
+TEST(AddTest, HandlesNegativeNumbers) {
+    EXPECT_EQ(add(-1, -2), -3);
+    EXPECT_EQ(add(-5, 3), -2);
+}
+
+TEST(AddTest, HandlesZero) {
+    EXPECT_EQ(add(0, 0), 0);
+    EXPECT_EQ(add(0, 5), 5);
+    EXPECT_EQ(add(5, 0), 5);
+}
+
+TEST(AddTest, HandlesLargeNumbers) {
+    EXPECT_EQ(add(1000000, 2000000), 3000000);
+}
+``` 
+
+CMakeLists.txt
+cmake_minimum_required(VERSION 3.14)
+project(math_project VERSION 0.1 LANGUAGES CXX)
+
+# Use a reasonable C++ standard
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Create library target for the math operations
+add_library(math_operations STATIC
+    math_operations.cpp
+)
+
+# Expose the project root as an include directory so headers in the root can be found
+target_include_directories(math_operations
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+# Enable testing
+enable_testing()
+
+# Fetch GoogleTest and make it available as imported targets (GTest::gtest GTest::gtest_main)
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
+)
+# For reproducible builds, prevent googletest from overriding user flags
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
+# Test executable
+add_executable(unit_tests
+    tests/unit_tests.cpp
+)
+
+target_link_libraries(unit_tests
+    PRIVATE
+        math_operations
+        GTest::gtest_main
+)
+
+target_include_directories(unit_tests
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+# Use GoogleTest's helper to discover and register tests with CTest
+include(GoogleTest)
+gtest_discover_tests(unit_tests)
+
+What I did:
+
+Implemented a small math module (header + source) with the required int add(int a, int b) function.
+Added a tests directory and implemented Google Test unit tests that cover positive, negative, zero, and large-number cases.
+Wrote a modern CMakeLists.txt that:
+Creates a library target for the module,
+Uses FetchContent to bring in Google Test,
+Adds a test executable,
+Links against GTest's imported target,
+Enables testing and uses gtest_discover_tests for automatic test discovery.
+What's next:
+
+To build and run tests:
+mkdir build && cd build
+cmake ..
+cmake --build . --config Debug
+ctest --output-on-failure
+If you prefer to vendor a specific gtest version into the repo or use your system's packaged gtest, I can adjust the CMake to prefer that option.
