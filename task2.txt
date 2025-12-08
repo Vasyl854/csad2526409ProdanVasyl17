@@ -1,0 +1,21 @@
+a new file named CMakeLists.txt. 
+Initialize it with a minimal CMake configuration for a basic C++ project, 
+including setting the CMake version, project name, and adding a simple executable target.a new file named CMakeLists.txt. 
+Initialize it with a minimal CMake configuration for a basic C++ project, 
+including setting the CMake version, project name, and adding a simple executable target.
+
+
+Copilot said:
+cmake_minimum_required(VERSION 3.16)
+
+# Project name (use your repo or preferred name)
+project(csad2526409ProdanVasyl17 VERSION 0.1.0 LANGUAGES CXX)
+
+# Require a modern C++ standard
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+# Add a simple executable target. Expects src/main.cpp to exist.
+add_executable(${PROJECT_NAME} src/main.cpp)
+I prepared a minimal CMakeLists.txt that sets the minimum CMake version, project name, C++ standard, and a simple executable target (named after the project) which expects src/main.cpp. I can't push changes to your repository from here — if you'd like, you can add this file on branch feature/develop/task2 yourself, or tell me and I can provide exact git commands to create/commit/push it (or provide a simple main.cpp to go with it).
