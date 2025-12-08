@@ -1,0 +1,156 @@
+Generate a CI script named ci.sh (for Linux/macOS) and ci.cmd (for Windows) that performs the following steps:
+Create a build directory: mkdir build
+Enter the directory: cd build
+Configure the project using CMake: cmake ..
+Build the project: cmake --build .
+Run tests using CTest: ctest
+For the Linux/macOS version, add execution permissions: chmod +x ci.sh
+Make sure the script works on all three major OS platforms (Linux, macOS, Windows).
+Include comments explaining each step.
+Write clean and readable code.
+
+Copilot said:
+Copilot said: I created two CI scripts: ci.sh for
+I created two CI scripts: ci.sh for Linux/macOS (POSIX shell with bash features) and ci.cmd for Windows (batch). Each script creates a build directory, configures with CMake, builds the project, and runs tests with CTest. The POSIX script also adds execution permission to itself as requested. Both scripts include comments explaining each step and do basic command existence checks.
+
+ci.sh
+#!/usr/bin/env bash
+# POSIX (Linux / macOS) CI script
+# - Creates and enters a build directory
+# - Configures the project with CMake
+# - Builds the project
+# - Runs tests with CTest
+# - Adds execution permission to this script (as requested)
+#
+# Usage:
+#   ./ci.sh
+# or
+#   bash ci.sh
+
+set -euo pipefail
+IFS=$'\n\t'
+
+# Determine the directory of this script so we can chmod the script file reliably
+# Works when the script is executed directly or via "bash ci.sh"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
+script_path="$script_dir/ci.sh"
+
+echo "=== CI: Starting (Linux/macOS) ==="
+
+# Ensure required tools exist
+if ! command -v cmake >/dev/null 2>&1; then
+  echo "Error: cmake not found in PATH. Please install CMake." >&2
+  exit 1
+fi
+
+if ! command -v ctest >/dev/null 2>&1; then
+  echo "Warning: ctest not found in PATH. Tests may not run." >&2
+fi
+
+# Create the build directory if it doesn't exist
+echo "Creating build directory..."
+mkdir -p build
+
+# Enter the build directory
+echo "Entering build directory..."
+cd build
+
+# Configure the project using CMake
+echo "Configuring project with CMake..."
+# Use '..' to configure the parent directory (project root)
+cmake ..
+
+# Build the project using CMake
+echo "Building the project..."
+cmake --build .
+
+# Run tests using CTest
+# --output-on-failure shows failing tests' output for easier debugging
+if command -v ctest >/dev/null 2>&1; then
+  echo "Running tests with CTest..."
+  ctest --output-on-failure
+else
+  echo "Skipping tests: ctest not available."
+fi
+
+# Add execution permissions to this script file (per request).
+# We do this at the end so the script can be marked executable for future runs.
+if [ -f "$script_path" ]; then
+  echo "Adding execution permission to '$script_path'..."
+  chmod +x "$script_path" || true
+fi
+
+echo "=== CI: Finished ==="
+
+ci.cmd
+@echo off
+:: Windows (cmd.exe) CI script
+:: - Creates and enters a build directory
+:: - Configures the project with CMake
+:: - Builds the project
+:: - Runs tests with CTest
+:: Note: Windows does not use chmod; execution permission step is only in ci.sh.
+
+echo === CI: Starting (Windows) ===
+
+:: Check for cmake
+where cmake >nul 2>&1
+if errorlevel 1 (
+  echo Error: cmake not found in PATH. Please install CMake.
+  exit /b 1
+)
+
+:: ctest may be available as part of CMake/CTest bundle; warn if missing
+where ctest >nul 2>&1
+if errorlevel 1 (
+  echo Warning: ctest not found in PATH. Tests may not run.
+)
+
+:: Create build directory (mkdir ignores existing directory with 1>nul 2>nul on newer Windows)
+if not exist build (
+  mkdir build
+) else (
+  echo build directory already exists
+)
+
+:: Enter the build directory
+cd /d build
+
+:: Configure the project using CMake (parent directory)
+echo Configuring project with CMake...
+cmake ..
+if errorlevel 1 (
+  echo CMake configuration failed.
+  exit /b %errorlevel%
+)
+
+:: Build the project using CMake
+echo Building the project...
+cmake --build .
+if errorlevel 1 (
+  echo Build failed.
+  exit /b %errorlevel%
+)
+
+:: Run tests using CTest (if available)
+where ctest >nul 2>&1
+if errorlevel 0 (
+  echo Running tests with CTest...
+  ctest --output-on-failure
+  if errorlevel 1 (
+    echo Some tests failed.
+    exit /b %errorlevel%
+  )
+) else (
+  echo Skipping tests: ctest not available.
+)
+
+echo === CI: Finished ===
+exit /b 0
+
+Notes:
+
+Use ci.sh on Linux/macOS and ci.cmd on Windows.
+Both scripts exit immediately on errors and print helpful messages.
+The POSIX script sets safe shell options (set -euo pipefail) and attempts to chmod itself at the end so future runs can be executed directly (./ci.sh).
+If you need extra CMake options (e.g., build type, generator), you can set environment variables or modify the cmake and cmake --build lines to include them.
