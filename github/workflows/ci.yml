@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - '*develop*'
+      - '*master*'
+  pull_request:
+    branches:
+      - '*develop*'
+      - '*master*'
+
+jobs:
+  cross_build:
+    name: cross_build
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install CMake on Linux
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake
+
+      - name: Install CMake on macOS
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew update
+          brew install cmake
+
+      - name: Install CMake on Windows
+        if: matrix.os == 'windows-latest'
+        shell: powershell
+        run: |
+          choco install -y cmake --installargs '"ADD_CMAKE_TO_PATH=System"'
+
+      - name: Configure
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: |
+          cmake --build build --config Release --parallel
+
+      - name: Deploy (placeholder)
+        run: |
+          echo "Deploy step placeholder - implement deployment here"
