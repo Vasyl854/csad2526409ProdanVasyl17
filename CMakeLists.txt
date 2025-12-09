@@ -14,7 +14,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Source files (ensure these paths match files in your repo)
 set(SOURCES
-  main.cpp
+  src/main.cpp
   # add other sources here, e.g. src/foo.cpp
 )
 
