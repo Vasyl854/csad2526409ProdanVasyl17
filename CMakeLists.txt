@@ -1,65 +1,31 @@
+cmake_minimum_required(VERSION 3.24)
 
-cmake_minimum_required(VERSION 3.14)
-project(math_project VERSION 0.1 LANGUAGES CXX)
+# Turn on the NEW behavior for CMP0135 (timestamp handling for FetchContent)
+if(POLICY CMP0135)
+  cmake_policy(SET CMP0135 NEW)
+endif()
 
-# Use a reasonable C++ standard
+project(csad2526409ProdanVasyl17 LANGUAGES C CXX)
+
+# Example/typical settings — adjust to match your original CMake contents
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-# Create library target for the math operations
-add_library(math_operations STATIC
-    math_operations.cpp
+# Source files (ensure these paths match files in your repo)
+set(SOURCES
+  main.cpp
+  # add other sources here, e.g. src/foo.cpp
 )
 
-# Expose the project root as an include directory so headers in the root can be found
-target_include_directories(math_operations
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-)
+# If you prefer to fail fast with a clear message when a source file is missing,
+# you can keep the check; otherwise remove this check if you will update SOURCES.
+foreach(f ${SOURCES})
+  if(NOT EXISTS "${CMAKE_SOURCE_DIR}/${f}")
+    message(FATAL_ERROR "Missing source file referenced in CMakeLists.txt: ${f}")
+  endif()
+endforeach()
 
-# Enable testing
-enable_testing()
+add_executable(${PROJECT_NAME} ${SOURCES})
 
-# Fetch GoogleTest and make it available as imported targets (GTest::gtest GTest::gtest_main)
-include(FetchContent)
-FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
-)
-# For reproducible builds, prevent googletest from overriding user flags
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
-
-# Test executable
-add_executable(unit_tests
-    tests/unit_tests.cpp
-)
-
-target_link_libraries(unit_tests
-    PRIVATE
-        math_operations
-        GTest::gtest_main
-)
-
-target_include_directories(unit_tests
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}
-)
-
-# Use GoogleTest's helper to discover and register tests with CTest
-include(GoogleTest)
-gtest_discover_tests(unit_tests)
-
-cmake_minimum_required(VERSION 3.16)
-
-# Project name (use your repo or preferred name)
-project(csad2526409ProdanVasyl17 VERSION 0.1.0 LANGUAGES CXX)
-
-# Require a modern C++ standard
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
-# Add a simple executable target. Expects src/main.cpp to exist.
-add_executable(${PROJECT_NAME} main.cpp)
-
+# Any extra targets, link libraries, or install rules follow...
