@@ -14,6 +14,7 @@ jobs:
   cross_build:
     name: cross_build
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
@@ -27,26 +28,25 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y cmake
 
+      - name: Install CMake on Windows
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          choco install -y cmake --installargs 'ADD_CMAKE_TO_PATH=System'
+
       - name: Install CMake on macOS
         if: matrix.os == 'macos-latest'
         run: |
           brew update
           brew install cmake
 
-      - name: Install CMake on Windows
-        if: matrix.os == 'windows-latest'
-        shell: powershell
+      - name: Configure and build
         run: |
-          choco install -y cmake --installargs '"ADD_CMAKE_TO_PATH=System"'
-
-      - name: Configure
-        run: |
+          # Configure the build
           cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-
-      - name: Build
-        run: |
+          # Build (multi-config support via --config)
           cmake --build build --config Release --parallel
 
       - name: Deploy (placeholder)
         run: |
-          echo "Deploy step placeholder - implement deployment here"
+          echo "Deploy step placeholder — implement deployment here"
