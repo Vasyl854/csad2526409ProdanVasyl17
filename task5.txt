@@ -1,0 +1,77 @@
+Create a GitHub Actions workflow file named ci.yml inside the .github/workflows/ directory.
+The workflow must meet the following requirements:
+Trigger:
+The workflow should run on push or pull_request events targeting branches whose names contain develop or master.
+Job:
+Create a single job named cross_build.
+Strategy:
+Use a build matrix to run the job on three operating systems:
+ubuntu-latest
+windows-latest
+macos-latest
+Steps:
+Each build must include the following steps:
+Checkout the repository using actions/checkout@v4
+Install CMake (if necessary for the platform)
+Run the configuration and build commands (use the script from Stage 3)
+Deploy (create a placeholder deploy step)
+Please generate the complete YAML workflow according to these requirements.
+
+Copilot said:
+github/workflows/ci.yml.
+name: CI
+
+on:
+  push:
+    branches:
+      - '*develop*'
+      - '*master*'
+  pull_request:
+    branches:
+      - '*develop*'
+      - '*master*'
+
+jobs:
+  cross_build:
+    name: cross_build
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install CMake on Linux
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake
+
+      - name: Install CMake on macOS
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew update
+          brew install cmake
+
+      - name: Install CMake on Windows
+        if: matrix.os == 'windows-latest'
+        shell: powershell
+        run: |
+          choco install -y cmake --installargs '"ADD_CMAKE_TO_PATH=System"'
+
+      - name: Configure
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: |
+          cmake --build build --config Release --parallel
+
+      - name: Deploy (placeholder)
+        run: |
+          echo "Deploy step placeholder - implement deployment here"
+
+I created the .github/workflows/ci.yml workflow that triggers on push and pull_request events targeting any branch name that contains "develop" or "master". It defines a single job cross_build using a matrix to run on ubuntu-latest, windows-latest, and macos-latest. Each matrix entry checks out the repo, installs CMake (platform-specific install commands), runs a configuration step and a build step (using standard CMake configure/build commands matching a Stage 3-style script), and includes a placeholder Deploy step you can replace with your actual deployment commands.
+
+If you want the workflow to use a specific action to install CMake (for example actions/setup-cmake) or need additional configuration flags, artifact upload, or platform-specific build flags (e.g., different parallelism settings per OS), tell me which approach you prefer and I’ll update the workflow accordingly.
